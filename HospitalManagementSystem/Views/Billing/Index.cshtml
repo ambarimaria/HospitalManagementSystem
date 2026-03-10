@@ -1,0 +1,82 @@
+@model HospitalManagementSystem.ViewModels.PagedResult<HospitalManagementSystem.Models.Bill>
+@{
+    ViewData["Title"] = "Billing";
+    decimal totalRevenue = 0;
+    decimal pending = 0;
+    foreach(var b in Model.Items) {
+        totalRevenue += b.PaidAmount;
+        if(b.Status == HospitalManagementSystem.Models.BillStatus.Pending) {
+            var t = b.SubTotal - b.Discount + (b.SubTotal - b.Discount) * b.TaxPercent / 100;
+            pending += t - b.PaidAmount;
+        }
+    }
+}
+<div class="page-header">
+    <div><div class="page-title">Billing & Payments</div><div class="page-subtitle">@Model.TotalCount total bills</div></div>
+    <a href="@Url.Action("Create")" class="btn btn-primary"><i class="fas fa-file-invoice-dollar"></i> Create Bill</a>
+</div>
+
+<div class="filter-bar">
+    <form method="get" class="flex items-center gap-3">
+        <select name="status" class="form-control form-select" style="width:160px;">
+            <option value="">All Statuses</option>
+            @foreach(var s in Enum.GetNames<HospitalManagementSystem.Models.BillStatus>())
+            {<option value="@s" selected="@(ViewBag.Status == s ? "selected" : null)">@s</option>}
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+        <a href="@Url.Action("Index")" class="btn btn-outline btn-sm">Reset</a>
+    </form>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Bill No.</th><th>Patient</th><th>Date</th><th>Due</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+            @if (!Model.Items.Any()){<tr><td colspan="9" class="no-data"><i class="fas fa-file-invoice"></i>No bills found</td></tr>}
+            @foreach(var b in Model.Items)
+            {
+                var total = b.SubTotal - b.Discount + (b.SubTotal - b.Discount) * b.TaxPercent / 100;
+                var balance = total - b.PaidAmount;
+                <tr>
+                    <td><a href="@Url.Action("Details",new{id=b.Id})" class="badge badge-secondary" style="text-decoration:none;">B@b.Id.ToString("D6")</a></td>
+                    <td><a href="@Url.Action("Details","Patient",new{id=b.PatientId})" class="font-semibold" style="color:var(--primary);">@b.Patient?.FirstName @b.Patient?.LastName</a></td>
+                    <td class="text-sm">@b.BillDate.ToString("MMM d, yyyy")</td>
+                    <td class="text-sm @(b.DueDate < DateTime.Today && b.Status != HospitalManagementSystem.Models.BillStatus.Paid ? "text-danger" : "text-muted")">@b.DueDate.ToString("MMM d")</td>
+                    <td class="font-semibold">$@total.ToString("N2")</td>
+                    <td class="text-sm" style="color:var(--success);">$@b.PaidAmount.ToString("N2")</td>
+                    <td class="text-sm @(balance > 0 ? "font-semibold" : "text-muted")" style="@(balance > 0 ? "color:var(--danger);" : "")">$@balance.ToString("N2")</td>
+                    <td>
+                        @{
+                            var bc = b.Status switch {
+                                HospitalManagementSystem.Models.BillStatus.Paid => "badge-success",
+                                HospitalManagementSystem.Models.BillStatus.Partial => "badge-warning",
+                                HospitalManagementSystem.Models.BillStatus.Cancelled => "badge-danger",
+                                _ => "badge-secondary"
+                            };
+                        }
+                        <span class="badge @bc">@b.Status</span>
+                    </td>
+                    <td>
+                        <div class="flex gap-1">
+                            <a href="@Url.Action("Details",new{id=b.Id})" class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.TotalPages > 1)
+    {
+        <div class="card-footer flex items-center justify-between">
+            <div class="text-sm text-muted">@Model.TotalCount bills</div>
+            <div class="pagination">
+                <a href="@Url.Action("Index",new{page=Model.Page-1})" class="page-link @(!Model.HasPrev?"disabled":"")"><i class="fas fa-chevron-left"></i></a>
+                @for (int i = Math.Max(1,Model.Page-2); i <= Math.Min(Model.TotalPages,Model.Page+2); i++)
+                {<a href="@Url.Action("Index",new{page=i})" class="page-link @(i==Model.Page?"active":"")">@i</a>}
+                <a href="@Url.Action("Index",new{page=Model.Page+1})" class="page-link @(!Model.HasNext?"disabled":"")"><i class="fas fa-chevron-right"></i></a>
+            </div>
+        </div>
+    }
+</div>

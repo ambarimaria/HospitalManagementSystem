@@ -1,0 +1,25 @@
+@model HospitalManagementSystem.Models.ApplicationUser
+@{
+    ViewData["Title"] = "My Profile";
+}
+<div class="page-header">
+    <div class="page-title">My Profile</div>
+</div>
+<div class="card" style="max-width:500px;">
+    <div class="card-body text-center" style="padding:32px;">
+        <div class="patient-avatar" style="width:80px;height:80px;font-size:2rem;margin:0 auto 16px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;">
+            @(Model?.FullName?.Substring(0,1) ?? "U")
+        </div>
+        <div class="font-bold" style="font-size:1.2rem;">@Model?.FullName</div>
+        <div class="text-muted mt-1">@Model?.Email</div>
+        <div class="info-row" style="justify-content:center;margin-top:12px;">
+            <span class="badge badge-primary">@Model?.Role</span>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--border);margin:20px 0;"/>
+        <div class="detail-grid">
+            <div class="detail-item"><label>Username</label><span>@Model?.UserName</span></div>
+            <div class="detail-item"><label>Member Since</label><span>@Model?.CreatedAt.ToString("MMMM yyyy")</span></div>
+        </div>
+        <a href="@Url.Action("Logout","Auth")" class="btn btn-danger mt-4"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </div>
+</div>

@@ -1,0 +1,25 @@
+@model HospitalManagementSystem.ViewModels.DoctorFormViewModel
+@{
+    ViewData["Title"] = "Edit Doctor";
+}
+<div class="page-header">
+    <div class="flex items-center gap-4">
+        <a href="@Url.Action("Details",new{id=Model.Id})" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i></a>
+        <div class="page-title">Edit Doctor</div>
+    </div>
+</div>
+<div class="card" style="max-width:760px;">
+    <div class="card-body">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="alert alert-danger"></div>
+            <div class="form-row"><div class="form-group"><label asp-for="FirstName" class="form-label required"></label><input asp-for="FirstName" class="form-control"/></div><div class="form-group"><label asp-for="LastName" class="form-label required"></label><input asp-for="LastName" class="form-control"/></div></div>
+            <div class="form-row"><div class="form-group"><label asp-for="Specialization" class="form-label required"></label><input asp-for="Specialization" class="form-control"/></div><div class="form-group"><label asp-for="DepartmentId" class="form-label required">Department</label><select asp-for="DepartmentId" class="form-control form-select">@foreach(var d in Model.Departments){<option value="@d.Id">@d.Name</option>}</select></div></div>
+            <div class="form-row"><div class="form-group"><label asp-for="Phone" class="form-label required"></label><input asp-for="Phone" class="form-control"/></div><div class="form-group"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control"/></div></div>
+            <div class="form-row cols-3"><div class="form-group"><label asp-for="LicenseNumber" class="form-label">License</label><input asp-for="LicenseNumber" class="form-control"/></div><div class="form-group"><label asp-for="ExperienceYears" class="form-label">Experience (yrs)</label><input asp-for="ExperienceYears" type="number" min="0" class="form-control"/></div><div class="form-group"><label asp-for="ConsultationFee" class="form-label">Fee ($)</label><input asp-for="ConsultationFee" type="number" step="0.01" class="form-control"/></div></div>
+            <div class="form-group"><label asp-for="Qualification" class="form-label">Qualifications</label><input asp-for="Qualification" class="form-control"/></div>
+            <div class="form-group flex items-center gap-3"><input asp-for="IsAvailable" type="checkbox" style="width:18px;height:18px;cursor:pointer;"/><label asp-for="IsAvailable" class="form-label" style="margin:0;">Available for appointments</label></div>
+            <div class="flex gap-3 mt-2"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button><a href="@Url.Action("Details",new{id=Model.Id})" class="btn btn-outline">Cancel</a></div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,47 @@
+@model HospitalManagementSystem.ViewModels.PagedResult<HospitalManagementSystem.Models.Doctor>
+@{
+    ViewData["Title"] = "Doctors";
+}
+<div class="page-header">
+    <div><div class="page-title">Medical Staff</div><div class="page-subtitle">@Model.TotalCount doctors registered</div></div>
+    <a href="@Url.Action("Create")" class="btn btn-primary"><i class="fas fa-user-md"></i> Add Doctor</a>
+</div>
+<div class="filter-bar">
+    <form method="get" class="search-bar">
+        <div class="search-input-wrap"><i class="fas fa-search search-icon"></i><input name="search" value="@Model.Search" class="form-control" placeholder="Search by name or specialization…" style="width:280px;"/></div>
+        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+        @if (!string.IsNullOrEmpty(Model.Search)){<a href="@Url.Action("Index")" class="btn btn-outline btn-sm">Clear</a>}
+    </form>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+@foreach (var d in Model.Items)
+{
+    <div class="card" style="transition:transform 0.18s,box-shadow 0.18s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div class="card-body">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="patient-avatar" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:var(--success);">Dr</div>
+                <div>
+                    <div class="font-bold">Dr. @d.FirstName @d.LastName</div>
+                    <div class="text-sm text-muted">@d.Specialization</div>
+                </div>
+                @if (d.IsAvailable)
+                {<span class="badge badge-success" style="margin-left:auto;">Available</span>}
+                else
+                {<span class="badge badge-secondary" style="margin-left:auto;">Busy</span>}
+            </div>
+            <div class="detail-grid" style="gap:8px;">
+                <div class="detail-item"><label>Department</label><span>@d.Department?.Name</span></div>
+                <div class="detail-item"><label>Experience</label><span>@d.ExperienceYears yrs</span></div>
+                <div class="detail-item"><label>Consultation</label><span class="font-semibold" style="color:var(--success);">$@d.ConsultationFee</span></div>
+                <div class="detail-item"><label>License</label><span>@(d.LicenseNumber ?? "—")</span></div>
+            </div>
+            <div class="flex gap-2 mt-3">
+                <a href="@Url.Action("Details",new{id=d.Id})" class="btn btn-outline btn-sm flex-1" style="justify-content:center;">View</a>
+                <a href="@Url.Action("Edit",new{id=d.Id})" class="btn btn-ghost btn-sm"><i class="fas fa-edit"></i></a>
+                <a href="@Url.Action("Create","Appointment",new{doctorId=d.Id})" class="btn btn-primary btn-sm"><i class="fas fa-calendar-plus"></i></a>
+            </div>
+        </div>
+    </div>
+}
+</div>

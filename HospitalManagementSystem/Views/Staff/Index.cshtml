@@ -1,0 +1,57 @@
+@model List<HospitalManagementSystem.Models.Staff>
+@{
+    ViewData["Title"] = "Staff Management";
+}
+<div class="page-header">
+    <div><div class="page-title">Staff Management</div><div class="page-subtitle">@Model.Count active staff members</div></div>
+    <a href="@Url.Action("Create")" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add Staff</a>
+</div>
+
+<div class="filter-bar">
+    <form method="get" class="search-bar">
+        <div class="search-input-wrap"><i class="fas fa-search search-icon"></i>
+            <input name="search" value="@ViewBag.Search" class="form-control" placeholder="Search by name or role…" style="width:260px;"/>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+        @if (!string.IsNullOrEmpty(ViewBag.Search as string)){<a href="@Url.Action("Index")" class="btn btn-outline btn-sm">Clear</a>}
+    </form>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Staff</th><th>Code</th><th>Role</th><th>Department</th><th>Phone</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody>
+            @if (!Model.Any()){<tr><td colspan="7" class="no-data"><i class="fas fa-users"></i>No staff found</td></tr>}
+            @foreach (var s in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <div class="patient-avatar" style="width:36px;height:36px;font-size:0.85rem;background:linear-gradient(135deg,#ede9fe,#ddd6fe);color:#7c3aed;">@s.FirstName[0]</div>
+                            <div>
+                                <div class="font-semibold">@s.FirstName @s.LastName</div>
+                                <div class="text-xs text-muted">@s.Email</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secondary">S@s.Id.ToString("D4")</span></td>
+                    <td><span class="badge badge-purple">@s.Role</span></td>
+                    <td class="text-sm text-muted">@(s.Department?.Name ?? "—")</td>
+                    <td class="text-sm">@s.Phone</td>
+                    <td class="text-sm text-muted">@s.JoinedAt.ToString("MMM d, yyyy")</td>
+                    <td>
+                        <div class="flex gap-1">
+                            <a href="@Url.Action("Edit", new{id=s.Id})" class="btn btn-ghost btn-sm"><i class="fas fa-edit"></i></a>
+                            <form asp-action="Deactivate" asp-route-id="@s.Id" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--danger);" data-confirm="Deactivate this staff member?"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,110 @@
+@model List<HospitalManagementSystem.Models.InventoryItem>
+@{
+    ViewData["Title"] = "Inventory";
+    var lowStock = Model.Count(i => i.IsLowStock);
+}
+<div class="page-header">
+    <div><div class="page-title">Inventory</div><div class="page-subtitle">@Model.Count items · @lowStock low stock</div></div>
+</div>
+
+@if (lowStock > 0)
+{
+    <div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> <strong>@lowStock items</strong> are running low on stock and need restocking.</div>
+}
+
+<div class="filter-bar">
+    <form method="get" class="flex items-center gap-3 flex-wrap">
+        <select name="category" class="form-control form-select" style="width:160px;">
+            <option value="">All Categories</option>
+            @foreach(var c in ViewBag.Categories as List<string> ?? new List<string>())
+            {<option selected="@(ViewBag.Category == c ? "selected" : null)">@c</option>}
+        </select>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.88rem;">
+            <input name="lowStock" type="checkbox" value="true" @(ViewBag.LowStock==true?"checked":"")/>
+            Show Low Stock Only
+        </label>
+        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+        <a href="@Url.Action("Index")" class="btn btn-outline btn-sm">Reset</a>
+    </form>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Item</th><th>Category</th><th>Current Stock</th><th>Min Stock</th><th>Status</th><th>Unit Cost</th><th>Selling Price</th><th>Expiry</th><th>Actions</th></tr></thead>
+            <tbody>
+            @if (!Model.Any()){<tr><td colspan="9" class="no-data"><i class="fas fa-pills"></i>No items found</td></tr>}
+            @foreach(var item in Model)
+            {
+                <tr @(item.IsLowStock ? "style='background:#fffbeb;'" : "")>
+                    <td class="font-semibold">@item.Name</td>
+                    <td><span class="badge badge-secondary">@item.Category</span></td>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold @(item.IsLowStock ? "" : "")" style="@(item.IsLowStock ? "color:var(--danger);" : "")">@item.CurrentStock</span>
+                            <span class="text-muted text-xs">@item.Unit</span>
+                        </div>
+                    </td>
+                    <td class="text-sm text-muted">@item.MinimumStock @item.Unit</td>
+                    <td>
+                        @if(item.IsLowStock)
+                        {<span class="badge badge-danger"><i class="fas fa-exclamation-circle"></i> Low Stock</span>}
+                        else
+                        {<span class="badge badge-success">In Stock</span>}
+                    </td>
+                    <td class="text-sm">$@item.UnitCost.ToString("N2")</td>
+                    <td class="text-sm font-semibold">$@item.SellingPrice.ToString("N2")</td>
+                    <td class="text-sm @(item.ExpiryDate.HasValue && item.ExpiryDate < DateTime.Today.AddMonths(3) ? "text-danger font-semibold" : "text-muted")">
+                        @(item.ExpiryDate?.ToString("MMM yyyy") ?? "—")
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="showStockModal(@item.Id, '@item.Name.Replace("'","\\'")', @item.CurrentStock)">
+                            <i class="fas fa-edit"></i> Update
+                        </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Stock Update Modal -->
+<div id="stockModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;">
+    <div class="card" style="width:380px;">
+        <div class="card-header">
+            <span class="card-title" id="stockItemName">Update Stock</span>
+        </div>
+        <form id="stockForm" asp-action="UpdateStock" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="stockItemId" name="id"/>
+            <div class="card-body">
+                <div id="currentStockInfo" class="alert alert-info mb-3" style="font-size:0.85rem;"></div>
+                <div class="form-group">
+                    <label class="form-label required">Change Amount</label>
+                    <input name="change" type="number" class="form-control" placeholder="Use + to add, - to remove (e.g. 50 or -10)"/>
+                    <div class="form-text">Positive to add stock, negative to deduct</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Reason</label>
+                    <input name="reason" class="form-control" placeholder="e.g. Restock delivery, Used in ward"/>
+                </div>
+            </div>
+            <div class="card-footer flex gap-3">
+                <button type="submit" class="btn btn-primary">Update Stock</button>
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('stockModal').style.display='none'">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function showStockModal(id, name, current) {
+    document.getElementById('stockItemId').value = id;
+    document.getElementById('stockItemName').textContent = name;
+    document.getElementById('currentStockInfo').textContent = 'Current stock: ' + current + ' units';
+    document.getElementById('stockModal').style.display = 'flex';
+}
+</script>
+}

@@ -1,0 +1,98 @@
+@model HospitalManagementSystem.ViewModels.PatientFormViewModel
+@{
+    ViewData["Title"] = "Register New Patient";
+}
+<div class="page-header">
+    <div class="flex items-center gap-4">
+        <a href="@Url.Action("Index")" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i></a>
+        <div class="page-title">Register New Patient</div>
+    </div>
+</div>
+
+<div class="card" style="max-width:820px;">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+            <h4 style="font-family:var(--font-head);font-weight:600;margin-bottom:16px;color:var(--primary);">Personal Information</h4>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="FirstName" class="form-label required"></label>
+                    <input asp-for="FirstName" class="form-control" placeholder="First name" />
+                    <span asp-validation-for="FirstName" class="field-validation-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LastName" class="form-label required"></label>
+                    <input asp-for="LastName" class="form-control" placeholder="Last name" />
+                    <span asp-validation-for="LastName" class="field-validation-error"></span>
+                </div>
+            </div>
+            <div class="form-row cols-3">
+                <div class="form-group">
+                    <label asp-for="DateOfBirth" class="form-label required"></label>
+                    <input asp-for="DateOfBirth" type="date" class="form-control" />
+                    <span asp-validation-for="DateOfBirth" class="field-validation-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Gender" class="form-label required"></label>
+                    <select asp-for="Gender" class="form-control form-select">
+                        <option value="">Select gender</option>
+                        <option>Male</option><option>Female</option><option>Other</option>
+                    </select>
+                    <span asp-validation-for="Gender" class="field-validation-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="BloodGroup" class="form-label"></label>
+                    <select asp-for="BloodGroup" class="form-control form-select">
+                        <option value="">Unknown</option>
+                        @foreach(var bg in new[]{"A+","A-","B+","B-","AB+","AB-","O+","O-"})
+                        {<option>@bg</option>}
+                    </select>
+                </div>
+            </div>
+
+            <h4 style="font-family:var(--font-head);font-weight:600;margin-bottom:16px;color:var(--primary);margin-top:8px;">Contact Details</h4>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Phone" class="form-label required"></label>
+                    <input asp-for="Phone" class="form-control" placeholder="Phone number" />
+                    <span asp-validation-for="Phone" class="field-validation-error"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" placeholder="Email address" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address" class="form-label"></label>
+                <textarea asp-for="Address" class="form-control" rows="2" placeholder="Street, City, State"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="EmergencyContact" class="form-label"></label>
+                    <input asp-for="EmergencyContact" class="form-control" placeholder="Contact name" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="EmergencyPhone" class="form-label"></label>
+                    <input asp-for="EmergencyPhone" class="form-control" placeholder="Emergency phone" />
+                </div>
+            </div>
+
+            <h4 style="font-family:var(--font-head);font-weight:600;margin-bottom:16px;color:var(--primary);margin-top:8px;">Medical Information</h4>
+            <div class="form-group">
+                <label asp-for="Allergies" class="form-label"></label>
+                <input asp-for="Allergies" class="form-control" placeholder="e.g. Penicillin, Aspirin" />
+            </div>
+            <div class="form-group">
+                <label asp-for="MedicalHistory" class="form-label"></label>
+                <textarea asp-for="MedicalHistory" class="form-control" rows="3" placeholder="Pre-existing conditions, past surgeries…"></textarea>
+            </div>
+
+            <div class="flex gap-3" style="margin-top:8px;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Register Patient</button>
+                <a href="@Url.Action("Index")" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

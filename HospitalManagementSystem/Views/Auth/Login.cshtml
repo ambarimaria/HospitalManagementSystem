@@ -1,0 +1,282 @@
+@model HospitalManagementSystem.ViewModels.LoginViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Login";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MediCore HMS — Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous"/>
+<style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{
+        font-family:'DM Sans',system-ui,sans-serif;
+        min-height:100vh;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        background: linear-gradient(135deg, #0d1117 0%, #0f1e3d 50%, #0d1117 100%);
+        position:relative;
+        overflow:hidden;
+    }
+    /* Animated background blobs */
+    body::before{
+        content:'';
+        position:fixed;
+        width:600px;height:600px;
+        background:radial-gradient(circle, rgba(15,111,255,0.15) 0%, transparent 70%);
+        top:-150px;left:-150px;
+        border-radius:50%;
+        animation:blob 8s ease-in-out infinite;
+    }
+    body::after{
+        content:'';
+        position:fixed;
+        width:500px;height:500px;
+        background:radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%);
+        bottom:-100px;right:-100px;
+        border-radius:50%;
+        animation:blob 10s ease-in-out infinite reverse;
+    }
+    @@keyframes blob{
+        0%,100%{transform:translate(0,0) scale(1)}
+        33%{transform:translate(30px,-20px) scale(1.05)}
+        66%{transform:translate(-20px,20px) scale(0.95)}
+    }
+
+    /* Grid dots background */
+    .bg-grid{
+        position:fixed;inset:0;
+        background-image:radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+        background-size:32px 32px;
+        pointer-events:none;
+    }
+
+    /* Login card */
+    .login-wrap{
+        position:relative;z-index:10;
+        width:100%;max-width:440px;
+        padding:24px;
+    }
+    .login-card{
+        background:rgba(255,255,255,0.04);
+        backdrop-filter:blur(20px);
+        -webkit-backdrop-filter:blur(20px);
+        border:1px solid rgba(255,255,255,0.1);
+        border-radius:24px;
+        padding:44px 40px 36px;
+        box-shadow:0 24px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05) inset;
+    }
+
+    /* Brand */
+    .login-brand{text-align:center;margin-bottom:36px}
+    .brand-icon-wrap{
+        width:72px;height:72px;
+        background:linear-gradient(135deg,#0f6fff,#06b6d4);
+        border-radius:20px;
+        display:flex;align-items:center;justify-content:center;
+        font-size:2rem;
+        margin:0 auto 18px;
+        box-shadow:0 8px 24px rgba(15,111,255,0.4);
+    }
+    .brand-title{
+        font-family:'Space Grotesk',sans-serif;
+        font-size:1.6rem;font-weight:700;
+        color:#fff;letter-spacing:-0.02em;
+    }
+    .brand-subtitle{
+        font-size:.85rem;
+        color:rgba(255,255,255,0.4);
+        margin-top:4px;
+    }
+
+    /* Form */
+    .form-group{margin-bottom:18px}
+    .form-label{
+        display:block;font-size:.82rem;font-weight:600;
+        color:rgba(255,255,255,0.6);
+        margin-bottom:7px;letter-spacing:.02em;text-transform:uppercase;
+    }
+    .input-wrap{position:relative}
+    .input-icon{
+        position:absolute;left:14px;top:50%;transform:translateY(-50%);
+        color:rgba(255,255,255,0.3);font-size:.9rem;pointer-events:none;
+    }
+    .form-control{
+        width:100%;
+        padding:12px 14px 12px 42px;
+        background:rgba(255,255,255,0.06);
+        border:1.5px solid rgba(255,255,255,0.1);
+        border-radius:12px;
+        color:#fff;
+        font-family:'DM Sans',sans-serif;
+        font-size:.95rem;
+        outline:none;
+        transition:border-color .2s, background .2s, box-shadow .2s;
+    }
+    .form-control::placeholder{color:rgba(255,255,255,0.2)}
+    .form-control:focus{
+        border-color:rgba(15,111,255,0.7);
+        background:rgba(15,111,255,0.08);
+        box-shadow:0 0 0 3px rgba(15,111,255,0.15);
+    }
+    .field-validation-error{
+        font-size:.78rem;color:#f87171;
+        margin-top:5px;display:block;
+    }
+
+    /* Remember me */
+    .remember-row{
+        display:flex;align-items:center;gap:8px;
+        margin-bottom:24px;cursor:pointer;
+    }
+    .remember-row input[type=checkbox]{
+        width:16px;height:16px;accent-color:#0f6fff;cursor:pointer;
+    }
+    .remember-row span{font-size:.85rem;color:rgba(255,255,255,0.45)}
+
+    /* Submit button */
+    .btn-signin{
+        width:100%;padding:13px;
+        background:linear-gradient(135deg,#0f6fff,#0050d0);
+        border:none;border-radius:12px;
+        color:#fff;font-family:'DM Sans',sans-serif;
+        font-size:1rem;font-weight:700;
+        cursor:pointer;
+        display:flex;align-items:center;justify-content:center;gap:8px;
+        transition:all .2s;
+        box-shadow:0 4px 16px rgba(15,111,255,0.4);
+        letter-spacing:.01em;
+    }
+    .btn-signin:hover{
+        background:linear-gradient(135deg,#2979ff,#0f6fff);
+        transform:translateY(-1px);
+        box-shadow:0 8px 24px rgba(15,111,255,0.5);
+    }
+    .btn-signin:active{transform:translateY(0)}
+
+    /* Divider */
+    .divider{
+        display:flex;align-items:center;gap:12px;
+        margin:24px 0 20px;
+    }
+    .divider-line{flex:1;height:1px;background:rgba(255,255,255,0.08)}
+    .divider-text{font-size:.75rem;color:rgba(255,255,255,0.25)}
+
+    /* Demo credentials */
+    .demo-box{
+        background:rgba(255,255,255,0.04);
+        border:1px solid rgba(255,255,255,0.08);
+        border-radius:12px;
+        padding:14px 16px;
+        display:flex;align-items:center;gap:12px;
+    }
+    .demo-icon{
+        width:32px;height:32px;
+        background:rgba(15,111,255,0.15);
+        border-radius:8px;
+        display:flex;align-items:center;justify-content:center;
+        color:#60a5fa;font-size:.85rem;flex-shrink:0;
+    }
+    .demo-label{font-size:.72rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+    .demo-creds{font-size:.82rem;color:rgba(255,255,255,0.55);font-family:'Space Grotesk',sans-serif}
+    .demo-creds strong{color:rgba(255,255,255,0.75)}
+
+    /* Alert */
+    .alert-danger{
+        background:rgba(239,68,68,0.12);
+        border:1px solid rgba(239,68,68,0.3);
+        border-radius:10px;
+        padding:10px 14px;
+        color:#fca5a5;
+        font-size:.85rem;
+        margin-bottom:18px;
+        display:none;
+    }
+    .alert-danger ul{padding-left:16px}
+    .alert-danger li{margin-bottom:2px}
+
+    /* Responsive */
+    @@media(max-width:480px){
+        .login-card{padding:32px 24px 28px}
+    }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+
+<div class="login-wrap">
+    <div class="login-card">
+
+        <div class="login-brand">
+            <div class="brand-icon-wrap">⚕</div>
+            <div class="brand-title">MediCore HMS</div>
+            <div class="brand-subtitle">Hospital Management System</div>
+        </div>
+
+        <form asp-controller="Auth" asp-action="Login" method="post" id="loginForm">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="All" class="alert-danger" id="valSummary"></div>
+
+            <div class="form-group">
+                <label asp-for="Email" class="form-label">Email Address</label>
+                <div class="input-wrap">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input asp-for="Email" class="form-control" placeholder="admin@hospital.com" autocomplete="email" />
+                </div>
+                <span asp-validation-for="Email" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password" class="form-label">Password</label>
+                <div class="input-wrap">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input asp-for="Password" class="form-control" type="password" placeholder="••••••••" autocomplete="current-password" />
+                </div>
+                <span asp-validation-for="Password" class="field-validation-error"></span>
+            </div>
+
+            <label class="remember-row">
+                <input asp-for="RememberMe" type="checkbox" />
+                <span>Remember me for 8 hours</span>
+            </label>
+
+            <button type="submit" class="btn-signin">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+        </form>
+
+        <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-text">Demo Access</span>
+            <div class="divider-line"></div>
+        </div>
+
+        <div class="demo-box">
+            <div class="demo-icon"><i class="fas fa-user-shield"></i></div>
+            <div>
+                <div class="demo-label">Default Credentials</div>
+                <div class="demo-creds"><strong>admin@@hospital.com</strong> / Admin@@123!</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Show validation summary if errors exist
+    window.addEventListener('DOMContentLoaded', () => {
+        const summary = document.getElementById('valSummary');
+        if (summary && summary.querySelectorAll('li').length > 0) {
+            summary.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>

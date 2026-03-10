@@ -1,0 +1,58 @@
+@model HospitalManagementSystem.ViewModels.AdmissionFormViewModel
+@{
+    ViewData["Title"] = "Admit Patient";
+}
+<div class="page-header">
+    <div class="flex items-center gap-4">
+        <a href="@Url.Action("Index")" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i></a>
+        <div class="page-title">Admit Patient</div>
+    </div>
+</div>
+<div class="card" style="max-width:640px;">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="alert alert-danger"></div>
+            <div class="form-group">
+                <label asp-for="PatientId" class="form-label required">Patient</label>
+                <select asp-for="PatientId" class="form-control form-select">
+                    <option value="">Select patient…</option>
+                    @foreach(var p in Model.Patients){<option value="@p.Id">@p.FirstName @p.LastName — @p.Phone</option>}
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="AdmittingDoctorId" class="form-label required">Admitting Doctor</label>
+                <select asp-for="AdmittingDoctorId" class="form-control form-select">
+                    <option value="">Select doctor…</option>
+                    @foreach(var d in Model.Doctors){<option value="@d.Id">Dr. @d.FirstName @d.LastName</option>}
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="BedId" class="form-label required">Ward & Bed</label>
+                <select asp-for="BedId" class="form-control form-select">
+                    <option value="">Select available bed…</option>
+                    @foreach(var w in Model.Wards)
+                    {
+                        var avail = w.Beds.Where(b => b.Status == HospitalManagementSystem.Models.BedStatus.Available).ToList();
+                        if (avail.Any())
+                        {
+                            <optgroup label="@w.Name (@w.WardType)">
+                            @foreach(var b in avail)
+                            {<option value="@b.Id">Bed @b.BedNumber — $@b.DailyRate/day</option>}
+                            </optgroup>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="AdmissionDate" class="form-label required">Admission Date</label>
+                <input asp-for="AdmissionDate" type="date" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label asp-for="AdmissionReason" class="form-label">Reason for Admission</label>
+                <textarea asp-for="AdmissionReason" class="form-control" rows="3" placeholder="Clinical diagnosis, condition…"></textarea>
+            </div>
+            <div class="flex gap-3"><button type="submit" class="btn btn-primary"><i class="fas fa-bed"></i> Admit Patient</button><a href="@Url.Action("Index")" class="btn btn-outline">Cancel</a></div>
+        </form>
+    </div>
+</div>

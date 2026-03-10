@@ -1,0 +1,61 @@
+@model HospitalManagementSystem.Models.Ward
+@{
+    ViewData["Title"] = Model.Name;
+}
+<div class="page-header">
+    <div class="flex items-center gap-4">
+        <a href="@Url.Action("Index")" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i></a>
+        <div><div class="page-title">@Model.Name</div><div class="page-subtitle">Ward @Model.WardNumber · @Model.WardType · @Model.Department?.Name</div></div>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title">Bed Status Overview</span></div>
+        <div class="card-body">
+            <div class="stats-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+                @{var avail = Model.Beds.Count(b=>b.Status==HospitalManagementSystem.Models.BedStatus.Available);}
+                @{var occ = Model.Beds.Count(b=>b.Status==HospitalManagementSystem.Models.BedStatus.Occupied);}
+                <div class="stat-card"><div class="stat-icon green"><i class="fas fa-bed"></i></div><div><div class="stat-value">@avail</div><div class="stat-label">Available</div></div></div>
+                <div class="stat-card"><div class="stat-icon red"><i class="fas fa-bed"></i></div><div><div class="stat-value">@occ</div><div class="stat-label">Occupied</div></div></div>
+            </div>
+            <div class="bed-grid mt-3">
+            @foreach(var bed in Model.Beds)
+            {
+                var cls = bed.Status switch {
+                    HospitalManagementSystem.Models.BedStatus.Available => "bed-available",
+                    HospitalManagementSystem.Models.BedStatus.Occupied => "bed-occupied",
+                    HospitalManagementSystem.Models.BedStatus.Maintenance => "bed-maintenance",
+                    _ => "bed-reserved"
+                };
+                <div class="bed-cell @cls" title="@bed.BedNumber — @bed.Status ($@bed.DailyRate/day)">
+                    <span class="bed-icon">🛏</span>
+                    <span>@bed.BedNumber</span>
+                </div>
+            }
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><span class="card-title">Current Occupants</span></div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Bed</th><th>Patient</th><th>Since</th></tr></thead>
+                <tbody>
+                @{var occupied = Model.Beds.Where(b => b.Status == HospitalManagementSystem.Models.BedStatus.Occupied && b.Admissions.Any(a=>a.DischargeDate==null)).ToList();}
+                @if (!occupied.Any()){<tr><td colspan="3" class="no-data" style="padding:20px;"><i class="fas fa-bed"></i>No occupants</td></tr>}
+                @foreach(var bed in occupied)
+                {
+                    var adm = bed.Admissions.FirstOrDefault(a=>a.DischargeDate==null);
+                    <tr>
+                        <td><span class="badge badge-secondary">@bed.BedNumber</span></td>
+                        <td class="font-semibold">@adm?.Patient?.FirstName @adm?.Patient?.LastName</td>
+                        <td class="text-sm text-muted">@adm?.AdmissionDate.ToString("MMM d")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

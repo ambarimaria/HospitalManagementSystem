@@ -1,0 +1,89 @@
+@model HospitalManagementSystem.Models.Appointment
+@{
+    ViewData["Title"] = "Appointment Details";
+}
+<div class="page-header">
+    <div class="flex items-center gap-4">
+        <a href="@Url.Action("Index")" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i></a>
+        <div><div class="page-title">Appointment A@Model.Id.ToString("D6")</div><div class="page-subtitle">@Model.AppointmentDate.ToString("dddd, MMMM d, yyyy") at @Model.AppointmentTime.ToString(@"hh\:mm")</div></div>
+    </div>
+    @if (Model.Status != HospitalManagementSystem.Models.AppointmentStatus.Cancelled && Model.Status != HospitalManagementSystem.Models.AppointmentStatus.Completed)
+    {
+        <a href="@Url.Action("Edit",new{id=Model.Id})" class="btn btn-outline"><i class="fas fa-edit"></i> Edit</a>
+    }
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title">Patient</span></div>
+        <div class="card-body">
+            <div class="patient-header">
+                <div class="patient-avatar">@Model.Patient?.FirstName[0]</div>
+                <div>
+                    <div class="font-bold">@Model.Patient?.FirstName @Model.Patient?.LastName</div>
+                    <div class="text-muted text-sm">@Model.Patient?.Phone</div>
+                    <a href="@Url.Action("Details","Patient",new{id=Model.PatientId})" class="btn btn-outline btn-sm mt-2">View Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><span class="card-title">Doctor</span></div>
+        <div class="card-body">
+            <div class="patient-header">
+                <div class="patient-avatar" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:var(--success);">Dr</div>
+                <div>
+                    <div class="font-bold">Dr. @Model.Doctor?.FirstName @Model.Doctor?.LastName</div>
+                    <div class="text-muted text-sm">@Model.Doctor?.Specialization</div>
+                    <div class="text-muted text-sm">@Model.Doctor?.Department?.Name</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <span class="card-title">Appointment Details</span>
+        @{
+            var cls = Model.Status switch {
+                HospitalManagementSystem.Models.AppointmentStatus.Completed => "badge-success",
+                HospitalManagementSystem.Models.AppointmentStatus.Cancelled => "badge-danger",
+                HospitalManagementSystem.Models.AppointmentStatus.Confirmed => "badge-info",
+                HospitalManagementSystem.Models.AppointmentStatus.NoShow => "badge-warning",
+                _ => "badge-secondary"
+            };
+        }
+        <span class="badge @cls" style="font-size:0.85rem;">@Model.Status</span>
+    </div>
+    <div class="card-body">
+        <div class="detail-grid">
+            <div class="detail-item"><label>Reason</label><span>@(Model.Reason ?? "—")</span></div>
+            <div class="detail-item"><label>Booked On</label><span>@Model.CreatedAt.ToString("MMM d, yyyy")</span></div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Diagnosis) || !string.IsNullOrEmpty(Model.Prescription))
+        {
+            <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;" />
+            <div class="detail-grid">
+                @if (!string.IsNullOrEmpty(Model.Diagnosis))
+                {
+                    <div class="detail-item" style="grid-column:span 2;"><label>Diagnosis</label><span>@Model.Diagnosis</span></div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Prescription))
+                {
+                    <div class="detail-item" style="grid-column:span 2;"><label>Prescription</label><span style="white-space:pre-wrap;">@Model.Prescription</span></div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div class="detail-item" style="grid-column:span 2;"><label>Notes</label><span>@Model.Notes</span></div>
+                }
+            </div>
+        }
+    </div>
+    @if (Model.Status == HospitalManagementSystem.Models.AppointmentStatus.Completed)
+    {
+        <div class="card-footer">
+            <a href="@Url.Action("Create","Billing",new{patientId=Model.PatientId,appointmentId=Model.Id})" class="btn btn-success btn-sm"><i class="fas fa-file-invoice"></i> Create Bill</a>
+        </div>
+    }
+</div>

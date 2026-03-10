@@ -1,0 +1,134 @@
+@{
+    ViewData["Title"] = "Reports & Analytics";
+    var monthlyRevenue = ViewBag.MonthlyRevenue as Dictionary<string, decimal> ?? new();
+    var deptAppts = ViewBag.DeptAppointments as Dictionary<string, int> ?? new();
+    var statusBreakdown = ViewBag.StatusBreakdown as Dictionary<string, int> ?? new();
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Reports & Analytics</div>
+        <div class="page-subtitle">Year to date — @((DateTime)ViewBag.TodayDate).Year</div>
+    </div>
+</div>
+
+<div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-dollar-sign"></i></div>
+        <div><div class="stat-value">$@((decimal)ViewBag.TotalRevenue).ToString("N0")</div><div class="stat-label">Total Revenue Collected</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-file-invoice"></i></div>
+        <div><div class="stat-value">$@((decimal)ViewBag.TotalBilled).ToString("N0")</div><div class="stat-label">Total Billed</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple"><i class="fas fa-user-injured"></i></div>
+        <div><div class="stat-value">@ViewBag.TotalPatients</div><div class="stat-label">Active Patients</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon teal"><i class="fas fa-calendar-check"></i></div>
+        <div><div class="stat-value">@ViewBag.TotalAppointments</div><div class="stat-label">Total Appointments</div></div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fas fa-chart-bar" style="color:var(--primary)"></i> Monthly Revenue (@((DateTime)ViewBag.TodayDate).Year)</span></div>
+        <div class="card-body"><div class="chart-container" style="height:300px;"><canvas id="monthlyChart"></canvas></div></div>
+    </div>
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fas fa-chart-pie" style="color:var(--secondary)"></i> Appointment Status</span></div>
+        <div class="card-body"><div class="chart-container" style="height:300px;"><canvas id="statusChart"></canvas></div></div>
+    </div>
+</div>
+
+<div class="dashboard-grid" style="margin-top:20px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fas fa-chart-bar" style="color:var(--success)"></i> Appointments by Department</span></div>
+        <div class="card-body"><div class="chart-container" style="height:280px;"><canvas id="deptChart"></canvas></div></div>
+    </div>
+    <div class="card">
+        <div class="card-header"><span class="card-title">Summary Statistics</span></div>
+        <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                @{
+                    var total = (int)ViewBag.TotalAppointments;
+                    var completed = (int)ViewBag.CompletedAppointments;
+                    var pct = total > 0 ? (int)(completed * 100.0 / total) : 0;
+                }
+                <div>
+                    <div class="flex justify-between text-sm mb-1"><span>Appointment Completion Rate</span><span class="font-semibold">@pct%</span></div>
+                    <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;"><div style="height:100%;width:@pct%;background:var(--success);border-radius:4px;"></div></div>
+                </div>
+                @{
+                    var collectionRate = (decimal)ViewBag.TotalBilled > 0
+                        ? (int)((decimal)ViewBag.TotalRevenue * 100 / (decimal)ViewBag.TotalBilled)
+                        : 0;
+                }
+                <div>
+                    <div class="flex justify-between text-sm mb-1"><span>Revenue Collection Rate</span><span class="font-semibold">@collectionRate%</span></div>
+                    <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;"><div style="height:100%;width:@collectionRate%;background:var(--primary);border-radius:4px;"></div></div>
+                </div>
+
+                <hr style="border:none;border-top:1px solid var(--border);" />
+
+                <div class="detail-grid">
+                    @foreach (var kv in statusBreakdown)
+                    {
+                        <div class="detail-item"><label>@kv.Key</label><span class="font-semibold">@kv.Value</span></div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+const monthLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(monthlyRevenue.Keys.ToList()));
+const monthData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(monthlyRevenue.Values.ToList()));
+new Chart(document.getElementById('monthlyChart'), {
+    type: 'bar',
+    data: {
+        labels: monthLabels,
+        datasets: [{
+            label: 'Revenue ($)',
+            data: monthData,
+            backgroundColor: monthData.map((v,i) => i === new Date().getMonth() ? 'rgba(15,111,255,0.85)' : 'rgba(15,111,255,0.25)'),
+            borderColor: '#0f6fff', borderWidth: 0, borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v.toLocaleString() } }, x: { grid: { display: false } } }
+    }
+});
+
+const statusLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(statusBreakdown.Keys.ToList()));
+const statusData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(statusBreakdown.Values.ToList()));
+new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: statusLabels,
+        datasets: [{ data: statusData, backgroundColor: ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6'], borderWidth: 3, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '62%' }
+});
+
+const deptLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(deptAppts.Keys.ToList()));
+const deptData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(deptAppts.Values.ToList()));
+new Chart(document.getElementById('deptChart'), {
+    type: 'bar',
+    data: {
+        labels: deptLabels,
+        datasets: [{ label: 'Appointments', data: deptData, backgroundColor: 'rgba(6,182,212,0.7)', borderColor: '#06b6d4', borderWidth: 0, borderRadius: 6 }]
+    },
+    options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, grid: { display: false } }, y: { grid: { display: false } } }
+    }
+});
+</script>
+}

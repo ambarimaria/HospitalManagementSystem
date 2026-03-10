@@ -1,0 +1,117 @@
+@model HospitalManagementSystem.Models.Bill
+@{
+    ViewData["Title"] = "Bill B" + Model.Id.ToString("D6");
+    var total = Model.SubTotal - Model.Discount + (Model.SubTotal - Model.Discount) * Model.TaxPercent / 100;
+    var balance = total - Model.PaidAmount;
+}
+<div class="page-header">
+    <div class="flex items-center gap-4">
+        <a href="@Url.Action("Index")" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i></a>
+        <div><div class="page-title">Bill B@Model.Id.ToString("D6")</div><div class="page-subtitle">@Model.BillDate.ToString("MMMM d, yyyy")</div></div>
+    </div>
+    @{
+        var bc = Model.Status switch {
+            HospitalManagementSystem.Models.BillStatus.Paid => "badge-success",
+            HospitalManagementSystem.Models.BillStatus.Partial => "badge-warning",
+            HospitalManagementSystem.Models.BillStatus.Cancelled => "badge-danger",
+            _ => "badge-secondary"
+        };
+    }
+    <span class="badge @bc" style="font-size:0.95rem;padding:8px 18px;">@Model.Status</span>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;">
+    <div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">@Model.Patient?.FirstName @Model.Patient?.LastName</div>
+                    <div class="text-sm text-muted">@Model.Patient?.Phone</div>
+                </div>
+                <a href="@Url.Action("Details","Patient",new{id=Model.PatientId})" class="btn btn-outline btn-sm">Patient Profile</a>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Description</th><th>Category</th><th>Qty</th><th>Unit Price</th><th class="text-right">Total</th></tr></thead>
+                    <tbody>
+                    @foreach(var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="font-semibold">@item.Description</td>
+                            <td><span class="badge badge-secondary">@item.Category</span></td>
+                            <td>@item.Quantity</td>
+                            <td>$@item.UnitPrice.ToString("N2")</td>
+                            <td class="text-right font-semibold">$@(item.Quantity * item.UnitPrice).ToString("N2")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <div style="max-width:280px;margin-left:auto;">
+                    <div class="flex justify-between mb-2"><span class="text-muted">Subtotal</span><span>$@Model.SubTotal.ToString("N2")</span></div>
+                    @if(Model.Discount > 0){<div class="flex justify-between mb-2"><span class="text-muted">Discount</span><span style="color:var(--success);">-$@Model.Discount.ToString("N2")</span></div>}
+                    <div class="flex justify-between mb-2"><span class="text-muted">Tax (@Model.TaxPercent%)</span><span>$@((Model.SubTotal - Model.Discount) * Model.TaxPercent / 100).ToString("N2")</span></div>
+                    <hr style="border:none;border-top:2px solid var(--border);margin:10px 0;"/>
+                    <div class="flex justify-between"><span class="font-bold" style="font-size:1.05rem;">Total</span><span class="font-bold" style="font-size:1.2rem;color:var(--primary);">$@total.ToString("N2")</span></div>
+                    <div class="flex justify-between mt-2"><span class="text-muted">Paid</span><span style="color:var(--success);">$@Model.PaidAmount.ToString("N2")</span></div>
+                    @if(balance > 0){<div class="flex justify-between mt-1"><span class="font-semibold" style="color:var(--danger);">Balance Due</span><span class="font-bold" style="color:var(--danger);">$@balance.ToString("N2")</span></div>}
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment History -->
+        @if (Model.Payments.Any())
+        {
+            <div class="card">
+                <div class="card-header"><span class="card-title">Payment History</span></div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Date</th><th>Method</th><th>Amount</th><th>Reference</th></tr></thead>
+                        <tbody>
+                        @foreach(var p in Model.Payments.OrderByDescending(x=>x.PaymentDate))
+                        {
+                            <tr>
+                                <td class="text-sm">@p.PaymentDate.ToString("MMM d, yyyy h:mm tt")</td>
+                                <td><span class="badge badge-info">@p.PaymentMethod</span></td>
+                                <td class="font-semibold" style="color:var(--success);">$@p.Amount.ToString("N2")</td>
+                                <td class="text-sm text-muted">@(p.TransactionRef ?? "—")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Add Payment -->
+    @if (Model.Status != HospitalManagementSystem.Models.BillStatus.Paid && Model.Status != HospitalManagementSystem.Models.BillStatus.Cancelled)
+    {
+        <div class="card" style="position:sticky;top:80px;align-self:start;">
+            <div class="card-header"><span class="card-title">Record Payment</span></div>
+            <div class="card-body">
+                <form asp-action="AddPayment" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="billId" value="@Model.Id"/>
+                    <div class="form-group">
+                        <label class="form-label required">Amount</label>
+                        <input name="amount" type="number" step="0.01" max="@balance" value="@balance.ToString("N2")" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Payment Method</label>
+                        <select name="method" class="form-control form-select">
+                            @foreach(var m in new[]{"Cash","Card","Bank Transfer","Insurance","Cheque","UPI"})
+                            {<option>@m</option>}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Transaction Reference</label>
+                        <input name="transactionRef" class="form-control" placeholder="Optional ref. no."/>
+                    </div>
+                    <button type="submit" class="btn btn-success w-full" style="justify-content:center;"><i class="fas fa-check"></i> Record Payment</button>
+                </form>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,53 @@
+@model HospitalManagementSystem.Models.Doctor
+@{
+    ViewData["Title"] = "Dr. " + Model.FirstName + " " + Model.LastName;
+}
+<div class="page-header">
+    <div class="flex items-center gap-4">
+        <a href="@Url.Action("Index")" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i></a>
+        <div><div class="page-title">Dr. @Model.FirstName @Model.LastName</div><div class="page-subtitle">@Model.Specialization — @Model.Department?.Name</div></div>
+    </div>
+    <a href="@Url.Action("Edit",new{id=Model.Id})" class="btn btn-outline"><i class="fas fa-edit"></i> Edit</a>
+</div>
+<div style="display:grid;grid-template-columns:300px 1fr;gap:20px;">
+    <div class="card">
+        <div class="card-body text-center">
+            <div class="patient-avatar" style="width:80px;height:80px;font-size:1.8rem;margin:0 auto 14px;background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:var(--success);">Dr</div>
+            <div class="font-bold" style="font-size:1.1rem;">Dr. @Model.FirstName @Model.LastName</div>
+            <div class="text-muted text-sm mt-1">@Model.Specialization</div>
+            <div class="info-row" style="justify-content:center;margin-top:10px;">
+                @if(Model.IsAvailable){<span class="badge badge-success">Available</span>}
+                else{<span class="badge badge-secondary">Unavailable</span>}
+                <span class="badge badge-info">@Model.Department?.Name</span>
+            </div>
+            <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;"/>
+            <div class="detail-grid" style="text-align:left;">
+                <div class="detail-item"><label>Phone</label><span>@Model.Phone</span></div>
+                <div class="detail-item"><label>Email</label><span>@(Model.Email??"-")</span></div>
+                <div class="detail-item"><label>License</label><span>@(Model.LicenseNumber??"-")</span></div>
+                <div class="detail-item"><label>Qualification</label><span>@(Model.Qualification??"-")</span></div>
+                <div class="detail-item"><label>Experience</label><span>@Model.ExperienceYears years</span></div>
+                <div class="detail-item"><label>Consultation Fee</label><span class="font-bold" style="color:var(--success);">$@Model.ConsultationFee</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><span class="card-title">Recent Appointments (@Model.Appointments.Count)</span></div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Patient</th><th>Date</th><th>Reason</th><th>Status</th></tr></thead>
+                <tbody>
+                @foreach(var a in Model.Appointments.OrderByDescending(x=>x.AppointmentDate).Take(10))
+                {
+                    <tr>
+                        <td class="font-semibold">@a.Patient?.FirstName @a.Patient?.LastName</td>
+                        <td class="text-sm">@a.AppointmentDate.ToString("MMM d, yyyy")</td>
+                        <td class="text-sm text-muted">@(a.Reason??"-")</td>
+                        <td><span class="badge @(a.Status==HospitalManagementSystem.Models.AppointmentStatus.Completed?"badge-success":a.Status==HospitalManagementSystem.Models.AppointmentStatus.Cancelled?"badge-danger":"badge-secondary")">@a.Status</span></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

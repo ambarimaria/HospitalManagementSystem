@@ -1,0 +1,40 @@
+@model HospitalManagementSystem.ViewModels.AppointmentFormViewModel
+@{
+    ViewData["Title"] = "Edit Appointment";
+}
+<div class="page-header">
+    <div class="flex items-center gap-4">
+        <a href="@Url.Action("Details",new{id=Model.Id})" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i></a>
+        <div class="page-title">Edit Appointment</div>
+    </div>
+</div>
+<div class="card" style="max-width:640px;">
+    <div class="card-body">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="alert alert-danger"></div>
+            <div class="form-group">
+                <label asp-for="PatientId" class="form-label required">Patient</label>
+                <select asp-for="PatientId" class="form-control form-select">
+                    @foreach(var p in Model.Patients){<option value="@p.Id">@p.FirstName @p.LastName</option>}
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="DoctorId" class="form-label required">Doctor</label>
+                <select asp-for="DoctorId" class="form-control form-select">
+                    @foreach(var d in Model.Doctors){<option value="@d.Id">Dr. @d.FirstName @d.LastName (@d.Department?.Name)</option>}
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label asp-for="AppointmentDate" class="form-label required">Date</label><input asp-for="AppointmentDate" type="date" class="form-control"/></div>
+                <div class="form-group"><label asp-for="AppointmentTime" class="form-label required">Time</label><input asp-for="AppointmentTime" type="time" class="form-control"/></div>
+            </div>
+            <div class="form-group"><label asp-for="Reason" class="form-label">Reason</label><textarea asp-for="Reason" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label asp-for="Status" class="form-label">Status</label><select asp-for="Status" class="form-control form-select" asp-items="Html.GetEnumSelectList<HospitalManagementSystem.Models.AppointmentStatus>()"></select></div>
+            <div class="form-group"><label asp-for="Diagnosis" class="form-label">Diagnosis</label><textarea asp-for="Diagnosis" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label asp-for="Prescription" class="form-label">Prescription</label><textarea asp-for="Prescription" class="form-control" rows="3" placeholder="Medicine name, dosage, frequency…"></textarea></div>
+            <div class="form-group"><label asp-for="Notes" class="form-label">Notes</label><textarea asp-for="Notes" class="form-control" rows="2"></textarea></div>
+            <div class="flex gap-3"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button><a href="@Url.Action("Details",new{id=Model.Id})" class="btn btn-outline">Cancel</a></div>
+        </form>
+    </div>
+</div>

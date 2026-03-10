@@ -1,0 +1,92 @@
+@model List<HospitalManagementSystem.Models.Admission>
+@{
+    ViewData["Title"] = "Admissions";
+    var active = Model.Where(a => a.DischargeDate == null).ToList();
+    var discharged = Model.Where(a => a.DischargeDate != null).ToList();
+}
+<div class="page-header">
+    <div><div class="page-title">Patient Admissions</div><div class="page-subtitle">@active.Count active · @discharged.Count discharged</div></div>
+    <a href="@Url.Action("Create")" class="btn btn-primary"><i class="fas fa-plus"></i> Admit Patient</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><span class="card-title">Currently Admitted (@active.Count)</span></div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Code</th><th>Patient</th><th>Ward / Bed</th><th>Doctor</th><th>Admitted</th><th>Days</th><th>Actions</th></tr></thead>
+            <tbody>
+            @if (!active.Any()){<tr><td colspan="7" class="no-data" style="padding:20px;"><i class="fas fa-bed"></i>No active admissions</td></tr>}
+            @foreach(var a in active)
+            {
+                <tr>
+                    <td><span class="badge badge-secondary">ADM@a.Id.ToString("D5")</span></td>
+                    <td><a href="@Url.Action("Details","Patient",new{id=a.PatientId})" class="font-semibold" style="color:var(--primary);">@a.Patient?.FirstName @a.Patient?.LastName</a></td>
+                    <td><div class="text-sm">@a.Bed?.Ward?.Name</div><div class="text-xs text-muted">Bed @a.Bed?.BedNumber</div></td>
+                    <td class="text-sm">Dr. @a.AdmittingDoctor?.LastName</td>
+                    <td class="text-sm">@a.AdmissionDate.ToString("MMM d, yyyy")</td>
+                    <td><span class="badge badge-info">@a.DaysAdmitted days</span></td>
+                    <td>
+                        <button type="button" class="btn btn-warning btn-sm" onclick="showDischarge(@a.Id)"><i class="fas fa-sign-out-alt"></i> Discharge</button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><span class="card-title">Discharged Patients (@discharged.Count)</span></div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Code</th><th>Patient</th><th>Ward</th><th>Admitted</th><th>Discharged</th><th>Duration</th></tr></thead>
+            <tbody>
+            @if (!discharged.Any()){<tr><td colspan="6" class="no-data" style="padding:20px;"><i class="fas fa-clipboard-check"></i>No discharge history</td></tr>}
+            @foreach(var a in discharged.Take(20))
+            {
+                <tr>
+                    <td><span class="badge badge-secondary">ADM@a.Id.ToString("D5")</span></td>
+                    <td>@a.Patient?.FirstName @a.Patient?.LastName</td>
+                    <td>@a.Bed?.Ward?.Name</td>
+                    <td class="text-sm text-muted">@a.AdmissionDate.ToString("MMM d")</td>
+                    <td class="text-sm text-muted">@a.DischargeDate?.ToString("MMM d, yyyy")</td>
+                    <td><span class="badge badge-success">@a.DaysAdmitted days</span></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Discharge Modal -->
+<div id="dischargeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;">
+    <div class="card" style="width:420px;max-width:90vw;">
+        <div class="card-header"><span class="card-title">Discharge Patient</span></div>
+        <form id="dischargeForm" method="post">
+            @Html.AntiForgeryToken()
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-label">Discharge Notes</label>
+                    <textarea name="notes" class="form-control" rows="4" placeholder="Discharge summary, follow-up instructions…"></textarea>
+                </div>
+            </div>
+            <div class="card-footer flex gap-3">
+                <button type="submit" class="btn btn-warning">Confirm Discharge</button>
+                <button type="button" class="btn btn-outline" onclick="hideDischarge()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function showDischarge(id) {
+    document.getElementById('dischargeForm').action = '/Admission/Discharge/' + id;
+    const modal = document.getElementById('dischargeModal');
+    modal.style.display = 'flex';
+}
+function hideDischarge() {
+    document.getElementById('dischargeModal').style.display = 'none';
+}
+</script>
+}

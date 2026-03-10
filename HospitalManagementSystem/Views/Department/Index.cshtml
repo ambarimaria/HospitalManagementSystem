@@ -1,0 +1,35 @@
+@model List<HospitalManagementSystem.Models.Department>
+@{
+    ViewData["Title"] = "Departments";
+}
+<div class="page-header">
+    <div><div class="page-title">Departments</div><div class="page-subtitle">@Model.Count active departments</div></div>
+    <a href="@Url.Action("Create")" class="btn btn-primary"><i class="fas fa-plus"></i> Add Department</a>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;">
+@foreach (var d in Model)
+{
+    <div class="card" style="transition:transform 0.18s,box-shadow 0.18s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div class="card-body text-center" style="padding:28px 20px;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">@d.Icon</div>
+            <div class="font-bold" style="font-size:1.05rem;">@d.Name</div>
+            <div class="text-muted text-sm mt-1" style="min-height:36px;">@d.Description</div>
+            <div class="flex justify-between mt-4" style="border-top:1px solid var(--border);padding-top:14px;">
+                <div class="text-center">
+                    <div class="font-bold" style="color:var(--primary);">@d.Doctors.Count(doc => doc.IsAvailable)</div>
+                    <div class="text-xs text-muted">Doctors</div>
+                </div>
+                <div class="text-center">
+                    <div class="font-bold" style="color:var(--success);">@d.Wards.Count(w => w.IsActive)</div>
+                    <div class="text-xs text-muted">Wards</div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer flex gap-2">
+            <a href="@Url.Action("Index","Doctor")#dept-@d.Id" class="btn btn-outline btn-sm flex-1" style="justify-content:center;">View Doctors</a>
+            <a href="@Url.Action("Edit",new{id=d.Id})" class="btn btn-ghost btn-sm"><i class="fas fa-edit"></i></a>
+        </div>
+    </div>
+}
+</div>

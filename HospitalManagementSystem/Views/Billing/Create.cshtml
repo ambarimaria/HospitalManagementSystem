@@ -1,0 +1,86 @@
+@model HospitalManagementSystem.ViewModels.BillFormViewModel
+@{
+    ViewData["Title"] = "Create Bill";
+}
+<div class="page-header">
+    <div class="flex items-center gap-4">
+        <a href="@Url.Action("Index")" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i></a>
+        <div class="page-title">Create Bill</div>
+    </div>
+</div>
+<form asp-action="Create" method="post" id="billForm">
+    @Html.AntiForgeryToken()
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:20px;">
+        <div>
+            <div class="card mb-4">
+                <div class="card-header"><span class="card-title">Bill Information</span></div>
+                <div class="card-body">
+                    <div asp-validation-summary="All" class="alert alert-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="PatientId" class="form-label required">Patient</label>
+                            <select asp-for="PatientId" class="form-control form-select">
+                                <option value="">Select patient…</option>
+                                @foreach(var p in Model.Patients){<option value="@p.Id">@p.FirstName @p.LastName</option>}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="DueDate" class="form-label required">Due Date</label>
+                            <input asp-for="DueDate" type="date" class="form-control"/>
+                        </div>
+                    </div>
+                    <div class="form-group"><label asp-for="Notes" class="form-label">Notes</label><textarea asp-for="Notes" class="form-control" rows="2"></textarea></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Bill Items</span>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="addBillItem()"><i class="fas fa-plus"></i> Add Item</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Description</th><th>Category</th><th>Qty</th><th>Unit Price</th><th>Total</th><th></th></tr></thead>
+                        <tbody id="bill-items-body">
+                        @for(int i = 0; i < Model.Items.Count; i++)
+                        {
+                            <tr class="bill-item-row">
+                                <td><input name="Items[@i].Description" value="@Model.Items[i].Description" class="form-control" placeholder="Description" required/></td>
+                                <td><select name="Items[@i].Category" class="form-control form-select">
+                                    @foreach(var c in new[]{"Consultation","Procedure","Medicine","Radiology","Lab","Room","Nursing","General"})
+                                    {<option selected="@(Model.Items[i].Category == c ? "selected" : null)">@c</option>}
+                                </select></td>
+                                <td><input name="Items[@i].Quantity" type="number" min="1" value="@Model.Items[i].Quantity" class="form-control item-qty" style="width:70px;" oninput="calcRow(this)"/></td>
+                                <td><input name="Items[@i].UnitPrice" type="number" step="0.01" value="@Model.Items[i].UnitPrice" class="form-control item-price" style="width:120px;" oninput="calcRow(this)"/></td>
+                                <td class="item-total text-right font-semibold">$@((Model.Items[i].Quantity * Model.Items[i].UnitPrice).ToString("N2"))</td>
+                                <td><button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="this.closest('tr').remove();updateBillTotal()"><i class="fas fa-trash"></i></button></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="card" style="position:sticky;top:80px;">
+                <div class="card-header"><span class="card-title">Bill Summary</span></div>
+                <div class="card-body">
+                    <div class="flex justify-between mb-3"><span class="text-muted">Subtotal</span><span id="bill-subtotal" class="font-semibold">$0.00</span></div>
+                    <div class="form-group">
+                        <label class="form-label">Discount ($)</label>
+                        <input asp-for="Discount" id="discount-input" type="number" step="0.01" min="0" class="form-control" oninput="updateBillTotal()"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tax (%)</label>
+                        <input asp-for="TaxPercent" id="tax-input" type="number" step="0.1" min="0" class="form-control" oninput="updateBillTotal()"/>
+                    </div>
+                    <div class="flex justify-between mb-2"><span class="text-muted">Tax Amount</span><span id="bill-tax">$0.00</span></div>
+                    <hr style="border:none;border-top:2px solid var(--border);margin:12px 0;"/>
+                    <div class="flex justify-between"><span class="font-bold" style="font-size:1.1rem;">Total</span><span id="bill-total" class="font-bold" style="font-size:1.2rem;color:var(--primary);">$0.00</span></div>
+                    <button type="submit" class="btn btn-primary w-full mt-4" style="justify-content:center;"><i class="fas fa-save"></i> Create Bill</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
