@@ -21,7 +21,7 @@
         <select name="status" class="form-control form-select" style="width:160px;">
             <option value="">All Statuses</option>
             @foreach(var s in Enum.GetNames<HospitalManagementSystem.Models.BillStatus>())
-            {<option value="@s" selected="@(ViewBag.Status == s ? "selected" : null)">@s</option>}
+            {<option value="@s" selected="@(ViewBag.Status == s ? "selected" : null)">@s</option>@* <option value="@s" @(ViewBag.Status==s?"selected":"")>@s</option> *@}
         </select>
         <button type="submit" class="btn btn-primary btn-sm">Filter</button>
         <a href="@Url.Action("Index")" class="btn btn-outline btn-sm">Reset</a>
@@ -39,7 +39,7 @@
                 var total = b.SubTotal - b.Discount + (b.SubTotal - b.Discount) * b.TaxPercent / 100;
                 var balance = total - b.PaidAmount;
                 <tr>
-                    <td><a href="@Url.Action("Details",new{id=b.Id})" class="badge badge-secondary" style="text-decoration:none;">B@b.Id.ToString("D6")</a></td>
+                    <td><a href="@Url.Action("Details",new{id=b.Id})" class="badge badge-secondary" style="text-decoration:none;">B@(b.Id.ToString("D6"))</a></td>
                     <td><a href="@Url.Action("Details","Patient",new{id=b.PatientId})" class="font-semibold" style="color:var(--primary);">@b.Patient?.FirstName @b.Patient?.LastName</a></td>
                     <td class="text-sm">@b.BillDate.ToString("MMM d, yyyy")</td>
                     <td class="text-sm @(b.DueDate < DateTime.Today && b.Status != HospitalManagementSystem.Models.BillStatus.Paid ? "text-danger" : "text-muted")">@b.DueDate.ToString("MMM d")</td>

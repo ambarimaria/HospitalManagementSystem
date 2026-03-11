@@ -19,7 +19,7 @@
             @foreach(var a in active)
             {
                 <tr>
-                    <td><span class="badge badge-secondary">ADM@a.Id.ToString("D5")</span></td>
+                    <td><span class="badge badge-secondary">ADM@(a.Id.ToString("D5"))</span></td>
                     <td><a href="@Url.Action("Details","Patient",new{id=a.PatientId})" class="font-semibold" style="color:var(--primary);">@a.Patient?.FirstName @a.Patient?.LastName</a></td>
                     <td><div class="text-sm">@a.Bed?.Ward?.Name</div><div class="text-xs text-muted">Bed @a.Bed?.BedNumber</div></td>
                     <td class="text-sm">Dr. @a.AdmittingDoctor?.LastName</td>
@@ -45,7 +45,7 @@
             @foreach(var a in discharged.Take(20))
             {
                 <tr>
-                    <td><span class="badge badge-secondary">ADM@a.Id.ToString("D5")</span></td>
+                    <td><span class="badge badge-secondary">ADM@(a.Id.ToString("D5"))</span></td>
                     <td>@a.Patient?.FirstName @a.Patient?.LastName</td>
                     <td>@a.Bed?.Ward?.Name</td>
                     <td class="text-sm text-muted">@a.AdmissionDate.ToString("MMM d")</td>

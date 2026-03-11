@@ -18,7 +18,7 @@
         <select name="status" class="form-control form-select" style="width:160px;">
             <option value="">All Statuses</option>
             @foreach(var s in Enum.GetNames<AppointmentStatus>())
-            {<option value="@s" selected="@(ViewBag.Status == s)">@s</option>}
+            {<option value="@s" selected="@(ViewBag.Status == s ? "selected" : null)">@s</option>@* <option value="@s" @(ViewBag.Status==s?"selected":"")>@s</option> *@}
         </select>
         <input name="date" type="date" class="form-control" value="@(ViewBag.Date != null ? ((DateTime)ViewBag.Date).ToString("yyyy-MM-dd") : "")" style="width:160px;" />
         <button type="submit" class="btn btn-primary btn-sm">Filter</button>
@@ -40,7 +40,7 @@
             @foreach (var a in Model.Items)
             {
                 <tr>
-                    <td><span class="badge badge-secondary">A@a.Id.ToString("D6")</span></td>
+                    <td><span class="badge badge-secondary">A@(a.Id.ToString("D6"))</span></td>
                     <td><a href="@Url.Action("Details","Patient",new{id=a.PatientId})" class="font-semibold" style="color:var(--primary);">@a.Patient?.FirstName @a.Patient?.LastName</a></td>
                     <td class="text-sm">Dr. @a.Doctor?.FirstName @a.Doctor?.LastName</td>
                     <td>

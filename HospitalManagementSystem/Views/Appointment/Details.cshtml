@@ -5,7 +5,7 @@
 <div class="page-header">
     <div class="flex items-center gap-4">
         <a href="@Url.Action("Index")" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i></a>
-        <div><div class="page-title">Appointment A@Model.Id.ToString("D6")</div><div class="page-subtitle">@Model.AppointmentDate.ToString("dddd, MMMM d, yyyy") at @Model.AppointmentTime.ToString(@"hh\:mm")</div></div>
+        <div><div class="page-title">Appointment A@(Model.Id.ToString("D6"))</div><div class="page-subtitle">@Model.AppointmentDate.ToString("dddd, MMMM d, yyyy") at @Model.AppointmentTime.ToString(@"hh\:mm")</div></div>
     </div>
     @if (Model.Status != HospitalManagementSystem.Models.AppointmentStatus.Cancelled && Model.Status != HospitalManagementSystem.Models.AppointmentStatus.Completed)
     {

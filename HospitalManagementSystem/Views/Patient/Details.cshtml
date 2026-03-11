@@ -8,7 +8,7 @@
         <a href="@Url.Action("Index")" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i></a>
         <div>
             <div class="page-title">@Model.FirstName @Model.LastName</div>
-            <div class="page-subtitle">Patient ID: P@Model.Id.ToString("D5")</div>
+            <div class="page-subtitle">Patient ID: P@(Model.Id.ToString("D5"))</div>
         </div>
     </div>
     <div class="flex gap-2">
@@ -137,7 +137,7 @@
                     {
                         var total = b.SubTotal - b.Discount + (b.SubTotal - b.Discount) * b.TaxPercent / 100;
                         <tr>
-                            <td><span class="badge badge-secondary">B@b.Id.ToString("D6")</span></td>
+                            <td><span class="badge badge-secondary">B@(b.Id.ToString("D6"))</span></td>
                             <td class="text-sm">@b.BillDate.ToString("MMM d")</td>
                             <td class="font-semibold">$@total.ToString("N2")</td>
                             <td class="text-sm">$@b.PaidAmount.ToString("N2")</td>

@@ -7,7 +7,7 @@
 <div class="page-header">
     <div class="flex items-center gap-4">
         <a href="@Url.Action("Index")" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i></a>
-        <div><div class="page-title">Bill B@Model.Id.ToString("D6")</div><div class="page-subtitle">@Model.BillDate.ToString("MMMM d, yyyy")</div></div>
+        <div><div class="page-title">Bill B@(Model.Id.ToString("D6"))</div><div class="page-subtitle">@Model.BillDate.ToString("MMMM d, yyyy")</div></div>
     </div>
     @{
         var bc = Model.Status switch {

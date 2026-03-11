@@ -56,7 +56,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td><span class="badge badge-secondary">P@p.Id.ToString("D5")</span></td>
+                        <td><span class="badge badge-secondary">P@(p.Id.ToString("D5"))</span></td>
                         <td>@p.Age yrs / <span class="badge @(p.Gender=="Male"?"badge-info":"badge-purple")" style="font-size:0.7rem;">@p.Gender</span></td>
                         <td>@(p.BloodGroup ?? "—")</td>
                         <td>@p.Phone</td>
