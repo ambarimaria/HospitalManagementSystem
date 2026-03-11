@@ -82,9 +82,16 @@ namespace HospitalManagementSystem.Controllers
             if (date.HasValue) q = q.Where(a => a.AppointmentDate.Date == date.Value.Date);
 
             int ps = 15;
-            var items = await q.OrderByDescending(a => a.AppointmentDate).ThenBy(a => a.AppointmentTime).Skip((page - 1) * ps).Take(ps).ToListAsync();
+            var totalCount = await q.CountAsync();
+
+            // ✅ Fetch page in SQL ordered by date, then sort TimeSpan in C# — SQLite cannot ORDER BY TimeSpan
+            var raw = await q.OrderByDescending(a => a.AppointmentDate)
+                .Skip((page - 1) * ps).Take(ps).ToListAsync();
+            var items = raw.OrderByDescending(a => a.AppointmentDate)
+                .ThenBy(a => a.AppointmentTime).ToList();
+
             ViewBag.Status = status; ViewBag.Date = date;
-            return View(new PagedResult<Appointment> { Items = items, TotalCount = await q.CountAsync(), Page = page, PageSize = ps, Search = search });
+            return View(new PagedResult<Appointment> { Items = items, TotalCount = totalCount, Page = page, PageSize = ps, Search = search });
         }
 
         public async Task<IActionResult> Details(int id)
