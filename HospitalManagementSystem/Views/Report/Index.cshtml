@@ -15,11 +15,11 @@
 <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
     <div class="stat-card">
         <div class="stat-icon green"><i class="fas fa-dollar-sign"></i></div>
-        <div><div class="stat-value">$@((decimal)ViewBag.TotalRevenue).ToString("N0")</div><div class="stat-label">Total Revenue Collected</div></div>
+        <div><div class="stat-value">$@(((decimal)ViewBag.TotalRevenue).ToString("N0"))</div><div class="stat-label">Total Revenue Collected</div></div>
     </div>
     <div class="stat-card">
         <div class="stat-icon blue"><i class="fas fa-file-invoice"></i></div>
-        <div><div class="stat-value">$@((decimal)ViewBag.TotalBilled).ToString("N0")</div><div class="stat-label">Total Billed</div></div>
+        <div><div class="stat-value">$@(((decimal)ViewBag.TotalBilled).ToString("N0"))</div><div class="stat-label">Total Billed</div></div>
     </div>
     <div class="stat-card">
         <div class="stat-icon purple"><i class="fas fa-user-injured"></i></div>
